@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha del cliente — Anamnesis y seguimiento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#1F2621;
+  --surface:#28312A;
+  --surface-2:#313C33;
+  --ink:#EDEAE0;
+  --ink-dim:#B7C0B5;
+  --ink-faint:#7E897F;
+  --accent:#FF6B4A;
+  --accent-dim:#C9502F;
+  --accent-2:#9FD989;
+  --line:rgba(237,234,224,0.14);
+  --line-strong:rgba(237,234,224,0.28);
+  --danger:#E8635A;
+  --radius:10px;
+  --font-display:'Oswald',sans-serif;
+  --font-body:'Inter',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--font-body);
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;letter-spacing:0.01em;margin:0;}
+a{color:var(--accent);}
+.wrap{max-width:920px;margin:0 auto;padding:0 20px 80px;}
+.topbar{
+  border-bottom:1px solid var(--line);
+  padding:22px 20px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+}
+.topbar .brand{display:flex;align-items:baseline;gap:10px;}
+.topbar .brand .mark{width:10px;height:10px;background:var(--accent);border-radius:2px;flex:none;}
+.topbar h1{font-size:20px;text-transform:uppercase;letter-spacing:0.06em;}
+.topbar .sub{font-size:12px;color:var(--ink-faint);font-family:var(--font-mono);}
+
+.vitals-strip{
+  display:flex;
+  gap:0;
+  border-bottom:1px solid var(--line);
+  overflow-x:auto;
+}
+.vitals-strip .cell{
+  flex:1;
+  min-width:110px;
+  padding:14px 20px;
+  border-right:1px solid var(--line);
+  font-family:var(--font-mono);
+}
+.vitals-strip .cell:last-child{border-right:none;}
+.vitals-strip .cell .label{font-size:10px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.08em;}
+.vitals-strip .cell .value{font-size:20px;color:var(--accent-2);margin-top:2px;}
+
+.hero{padding:56px 0 40px;}
+.hero .eyebrow{font-family:var(--font-mono);font-size:12px;color:var(--accent);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:14px;}
+.hero h2{font-size:38px;line-height:1.08;max-width:640px;text-transform:uppercase;}
+.hero p{color:var(--ink-dim);max-width:520px;margin-top:16px;font-size:15px;}
+
+.choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:36px;}
+@media (max-width:680px){.choice-grid{grid-template-columns:1fr;}}
+.choice-card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:24px;
+  cursor:pointer;
+  transition:border-color .15s ease, transform .15s ease;
+  text-align:left;
+}
+.choice-card:hover{border-color:var(--line-strong);transform:translateY(-2px);}
+.choice-card .tag{font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.08em;}
+.choice-card h3{font-size:22px;margin-top:10px;text-transform:none;}
+.choice-card p{color:var(--ink-dim);font-size:13.5px;margin-top:8px;}
+.choice-card .go{margin-top:18px;font-size:13px;color:var(--accent);font-family:var(--font-mono);}
+
+.hidden{display:none !important;}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:30px;margin-top:28px;}
+.progress{display:flex;gap:6px;margin-bottom:26px;}
+.progress .seg{flex:1;height:3px;background:var(--line);border-radius:2px;overflow:hidden;}
+.progress .seg.done{background:var(--accent);}
+.progress .seg.active{background:var(--accent-2);}
+.step-label{font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;}
+.step-title{font-size:24px;margin-bottom:22px;text-transform:none;}
+
+.field{margin-bottom:18px;}
+.field label{display:block;font-size:13px;color:var(--ink-dim);margin-bottom:6px;}
+.field .hint{font-size:11.5px;color:var(--ink-faint);margin-top:4px;}
+input[type=text],input[type=number],input[type=date],input[type=tel],textarea,select{
+  width:100%;
+  background:var(--surface-2);
+  border:1px solid var(--line-strong);
+  color:var(--ink);
+  border-radius:6px;
+  padding:10px 12px;
+  font-size:14px;
+  font-family:var(--font-body);
+}
+textarea{resize:vertical;min-height:64px;}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+@media (max-width:640px){.row2,.row3{grid-template-columns:1fr;}}
+
+.check-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+@media (max-width:640px){.check-grid{grid-template-columns:repeat(2,1fr);}}
+.check-item{
+  display:flex;align-items:center;gap:8px;
+  background:var(--surface-2);border:1px solid var(--line);
+  border-radius:6px;padding:9px 10px;font-size:13px;cursor:pointer;
+}
+.check-item input{width:auto;}
+
+.radio-row{display:flex;gap:8px;flex-wrap:wrap;}
+.radio-pill{
+  background:var(--surface-2);border:1px solid var(--line-strong);
+  border-radius:20px;padding:8px 16px;font-size:13px;cursor:pointer;color:var(--ink-dim);
+}
+.radio-pill.picked{background:var(--accent);border-color:var(--accent);color:#241209;font-weight:500;}
+
+.scale-row{display:flex;gap:8px;}
+.scale-btn{
+  flex:1;background:var(--surface-2);border:1px solid var(--line-strong);border-radius:8px;
+  padding:16px 6px;text-align:center;cursor:pointer;
+}
+.scale-btn .emoji{font-size:22px;display:block;}
+.scale-btn .n{font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);margin-top:4px;display:block;}
+.scale-btn.picked{background:var(--accent);border-color:var(--accent);}
+.scale-btn.picked .n{color:#241209;}
+
+.accordion{border-top:1px solid var(--line);}
+.accordion-item{border-bottom:1px solid var(--line);}
+.accordion-head{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:16px 2px;cursor:pointer;font-size:14px;color:var(--ink);
+}
+.accordion-head .plus{font-family:var(--font-mono);color:var(--accent);}
+.accordion-body{padding:4px 2px 22px;}
+
+.btn-row{display:flex;justify-content:space-between;align-items:center;margin-top:30px;gap:12px;}
+button{
+  font-family:var(--font-body);font-size:14px;font-weight:500;
+  border-radius:6px;padding:12px 22px;cursor:pointer;border:1px solid var(--line-strong);
+  background:transparent;color:var(--ink);
+}
+button.primary{background:var(--accent);border-color:var(--accent);color:#241209;}
+button.primary:hover{background:var(--accent-dim);}
+button.ghost{background:transparent;color:var(--ink-dim);}
+button:disabled{opacity:0.45;cursor:not-allowed;}
+
+.consent-box{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:16px;font-size:12.5px;color:var(--ink-dim);max-height:160px;overflow-y:auto;margin-bottom:14px;}
+.consent-check{display:flex;gap:10px;align-items:flex-start;font-size:13px;}
+.consent-check input{width:auto;margin-top:3px;}
+
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#241209;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px;margin-right:8px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.result-doc{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:24px;font-size:13.5px;white-space:pre-wrap;font-family:var(--font-mono);color:var(--ink-dim);max-height:420px;overflow-y:auto;}
+.result-section h4{font-size:16px;color:var(--accent-2);margin:22px 0 8px;text-transform:none;}
+.result-section p,.result-section li{font-size:14px;color:var(--ink-dim);}
+.result-section ul{margin:6px 0;padding-left:20px;}
+.status-line{font-family:var(--font-mono);font-size:12px;margin-top:14px;padding:10px 12px;border-radius:6px;}
+.status-line.ok{background:rgba(159,217,137,0.12);color:var(--accent-2);}
+.status-line.err{background:rgba(232,99,90,0.12);color:var(--danger);}
+.status-line.pending{background:rgba(237,234,224,0.08);color:var(--ink-dim);}
+
+.settings-toggle{position:fixed;bottom:18px;right:18px;background:var(--surface);border:1px solid var(--line-strong);color:var(--ink-faint);width:38px;height:38px;border-radius:50%;font-size:15px;}
+.settings-panel{position:fixed;bottom:64px;right:18px;background:var(--surface);border:1px solid var(--line-strong);border-radius:8px;padding:16px;width:280px;font-size:12.5px;}
+.settings-panel label{display:block;color:var(--ink-dim);margin-bottom:6px;}
+.settings-panel input{margin-bottom:10px;}
+
+footer{border-top:1px solid var(--line);margin-top:60px;padding:34px 0 10px;}
+footer h4{font-size:14px;color:var(--ink);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;}
+footer p{font-size:12px;color:var(--ink-faint);line-height:1.7;margin:0 0 14px;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="mark" aria-hidden="true"></span><h1>Ficha del cliente</h1></div>
+  <div class="sub" id="clockLine">Entrenamiento · Nutrición · Seguimiento</div>
+</div>
+
+<div class="vitals-strip" id="vitalsStrip">
+  <div class="cell"><div class="label">Registros hoy</div><div class="value" id="vitalCount">0</div></div>
+  <div class="cell"><div class="label">Energía</div><div class="value" id="vitalEnergy">—</div></div>
+  <div class="cell"><div class="label">Sueño</div><div class="value" id="vitalSleep">—</div></div>
+  <div class="cell"><div class="label">Estrés</div><div class="value" id="vitalStress">—</div></div>
+  <div class="cell"><div class="label">Sync Sheets</div><div class="value" id="vitalSync">—</div></div>
+</div>
+
+<div class="wrap">
+
+  <div id="screen-home">
+    <div class="hero">
+      <div class="eyebrow">Registro de entrenamiento y nutrición</div>
+      <h2>¿Cómo llega tu cuerpo hoy?</h2>
+      <p>Elige el check-in rápido si ya eres cliente y solo vienes a registrar cómo te sientes, o completa tu historia clínica si es tu primera vez.</p>
+    </div>
+    <div class="choice-grid">
+      <div class="choice-card" onclick="startFlow('checkin')">
+        <div class="tag">Uso semanal · 60 segundos</div>
+        <h3>Check-in rápido</h3>
+        <p>7 preguntas sobre fatiga, sueño, dolor muscular y rendimiento. Ideal antes o después de entrenar.</p>
+        <div class="go">Empezar →</div>
+      </div>
+      <div class="choice-card" onclick="startFlow('anamnesis')">
+        <div class="tag">Una sola vez · 6-8 minutos</div>
+        <h3>Historia clínica completa</h3>
+        <p>Antecedentes de salud, hábitos y objetivos. Al terminar generamos tu guía de alimentación y tips de entrenamiento.</p>
+        <div class="go">Empezar →</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="screen-flow" class="hidden">
+    <div class="panel">
+      <div class="progress" id="progressBar"></div>
+      <div class="step-label" id="stepLabel"></div>
+      <h3 class="step-title" id="stepTitle"></h3>
+      <div id="stepBody"></div>
+      <div class="btn-row">
+        <button class="ghost" id="btnBack" onclick="goBack()">Atrás</button>
+        <button class="primary" id="btnNext" onclick="goNext()">Continuar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="screen-result" class="hidden">
+    <div class="panel">
+      <div class="step-label">Listo</div>
+      <h3 class="step-title" id="resultTitle">Registro guardado</h3>
+      <div id="resultBody"></div>
+      <div class="btn-row" style="margin-top:24px;">
+        <button class="ghost" onclick="location.reload()">Volver al inicio</button>
+        <div style="display:flex;gap:10px;">
+          <button id="btnDownload" onclick="downloadDoc()">Descargar .txt</button>
+          <button id="btnPrint" onclick="window.print()">Imprimir / PDF</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<button class="settings-toggle" onclick="toggleSettings()" aria-label="Configuración" title="Configuración de integración">⚙</button>
+<div class="settings-panel hidden" id="settingsPanel">
+  <label>URL del Web App de Google Sheets</label>
+  <input type="text" id="sheetsUrlInput" placeholder="https://script.google.com/macros/s/.../exec">
+  <button style="width:100%" onclick="saveSheetsUrl()">Guardar para esta sesión</button>
+  <p style="color:var(--ink-faint);margin-top:10px;">Se guarda en este navegador y persiste aunque cierres o recargues la página. Ya viene una URL por defecto configurada en el código; solo usa este campo si necesitas cambiarla.</p>
+</div>
+
+<footer>
+  <div class="wrap">
+    <h4>Consentimiento informado y tratamiento de datos</h4>
+    <p>
+      Al diligenciar este formulario usted autoriza de manera libre, previa, expresa e informada el tratamiento de sus datos personales y datos sensibles de salud, conforme a la Ley 1581 de 2012, el Decreto 1377 de 2013 y demás normas concordantes en Colombia sobre protección de datos personales. Estos datos serán usados exclusivamente para diseñar y ajustar su plan de entrenamiento y alimentación, hacer seguimiento a su progreso y mantener su historia clínica de entrenamiento. Usted puede solicitar en cualquier momento la consulta, corrección o eliminación de su información contactando directamente a su entrenador o nutricionista.
+    </p>
+    <h4>Aviso importante</h4>
+    <p>
+      La guía de alimentación y los tips de entrenamiento generados en esta página son de carácter informativo y educativo. No constituyen diagnóstico médico, prescripción nutricional clínica ni tratamiento de ninguna patología, y no sustituyen la valoración, el seguimiento ni la asesoría de un médico, nutricionista o profesional de la salud calificado. Ante cualquier condición médica, dolor persistente o duda sobre su salud, consulte siempre con un profesional antes de iniciar o modificar su alimentación o rutina de ejercicio.
+    </p>
+  </div>
+</footer>
+
+<script>
+const GOOGLE_SHEETS_URL_DEFAULT = "https://script.google.com/macros/s/AKfycbwVC6GJb3miDS4koPoVDOvHcv1vuUIryje7J9a6Jo9uf0ru7dObjmh0IVwzGegJZdGbdQ/exec";
+let GOOGLE_SHEETS_URL = localStorage.getItem('nj_sheets_url') || GOOGLE_SHEETS_URL_DEFAULT;
+let sessionCount = 0;
+
+function toggleSettings(){
+  const panel = document.getElementById('settingsPanel');
+  panel.classList.toggle('hidden');
+  if(!panel.classList.contains('hidden')){
+    document.getElementById('sheetsUrlInput').value = GOOGLE_SHEETS_URL || '';
+  }
+}
+function saveSheetsUrl(){
+  const v = document.getElementById('sheetsUrlInput').value.trim();
+  if(v){
+    GOOGLE_SHEETS_URL = v;
+    localStorage.setItem('nj_sheets_url', v);
+  }
+  toggleSettings();
+}
+
+const scaleEmojis = ['😩','🙁','😐','🙂','😄'];
+
+const CHECKIN_STEPS = [
+  {key:'energia', title:'Nivel de energía', label:'Paso 1 de 7', type:'scale', prompt:'¿Cómo sientes tu energía general hoy?'},
+  {key:'sueno', title:'Calidad de sueño', label:'Paso 2 de 7', type:'scale', prompt:'¿Cómo dormiste en los últimos días?'},
+  {key:'dolorMuscular', title:'Dolor muscular', label:'Paso 3 de 7', type:'scale', prompt:'¿Qué tan adolorido(a) o cargado(a) sientes el cuerpo?'},
+  {key:'motivacion', title:'Motivación', label:'Paso 4 de 7', type:'scale', prompt:'¿Qué tantas ganas tienes de entrenar hoy?'},
+  {key:'estres', title:'Estrés mental', label:'Paso 5 de 7', type:'scale', prompt:'¿Qué tan cargado(a) mentalmente te sientes?'},
+  {key:'rendimiento', title:'Rendimiento reciente', label:'Paso 6 de 7', type:'pills', prompt:'Comparado con lo que esperabas, tu último entreno fue:', options:['Peor','Igual','Mejor']},
+  {key:'progreso', title:'Percepción de progreso', label:'Paso 7 de 7', type:'pills', prompt:'¿Sientes que estás progresando hacia tu objetivo?', options:['Retrocediendo','Estancado','Avanzando']},
+  {key:'comentario', title:'Algo más', label:'Opcional', type:'text', prompt:'¿Algo que tu entrenador debería saber hoy? (opcional)'}
+];
+
+const ANAMNESIS_STEPS = [
+  {key:'personal', title:'Datos personales', label:'Paso 1 de 6', type:'custom', render:renderPersonal},
+  {key:'antecedentes', title:'Antecedentes de salud', label:'Paso 2 de 6', type:'custom', render:renderAntecedentes},
+  {key:'habitos', title:'Hábitos y estilo de vida', label:'Paso 3 de 6', type:'custom', render:renderHabitos},
+  {key:'sueno_ejercicio', title:'Sueño y ejercicio', label:'Paso 4 de 6', type:'custom', render:renderSuenoEjercicio},
+  {key:'examen', title:'Examen físico y objetivo', label:'Paso 5 de 6', type:'custom', render:renderExamen},
+  {key:'consentimiento', title:'Consentimiento y envío', label:'Paso 6 de 6', type:'custom', render:renderConsentimiento}
+];
+
+let flowType = null;
+let stepIndex = 0;
+let checkinData = {};
+let anamnesisData = {
+  patologias:[], osteomuscular:[]
+};
+
+function startFlow(type){
+  flowType = type;
+  stepIndex = 0;
+  document.getElementById('screen-home').classList.add('hidden');
+  document.getElementById('screen-flow').classList.remove('hidden');
+  renderStep();
+}
+
+function currentSteps(){ return flowType === 'checkin' ? CHECKIN_STEPS : ANAMNESIS_STEPS; }
+
+function renderProgress(){
+  const steps = currentSteps();
+  const bar = document.getElementById('progressBar');
+  bar.innerHTML = '';
+  steps.forEach((s,i)=>{
+    const seg = document.createElement('div');
+    seg.className = 'seg' + (i < stepIndex ? ' done' : (i === stepIndex ? ' active' : ''));
+    bar.appendChild(seg);
+  });
+}
+
+function renderStep(){
+  const steps = currentSteps();
+  const step = steps[stepIndex];
+  renderProgress();
+  document.getElementById('stepLabel').textContent = step.label;
+  document.getElementById('stepTitle').textContent = step.title;
+  const body = document.getElementById('stepBody');
+  body.innerHTML = '';
+
+  if(step.type === 'scale'){
+    const wrap = document.createElement('div');
+    const p = document.createElement('p');
+    p.style.color = 'var(--ink-dim)'; p.style.marginBottom = '16px'; p.style.fontSize='14px';
+    p.textContent = step.prompt;
+    const row = document.createElement('div'); row.className = 'scale-row';
+    for(let i=1;i<=5;i++){
+      const btn = document.createElement('div');
+      btn.className = 'scale-btn' + (checkinData[step.key] === i ? ' picked' : '');
+      btn.innerHTML = '<span class="emoji">'+scaleEmojis[i-1]+'</span><span class="n">'+i+'</span>';
+      btn.onclick = ()=>{ checkinData[step.key] = i; renderStep(); };
+      row.appendChild(btn);
+    }
+    wrap.appendChild(p); wrap.appendChild(row);
+    body.appendChild(wrap);
+  } else if(step.type === 'pills'){
+    const wrap = document.createElement('div');
+    const p = document.createElement('p');
+    p.style.color = 'var(--ink-dim)'; p.style.marginBottom = '16px'; p.style.fontSize='14px';
+    p.textContent = step.prompt;
+    const row = document.createElement('div'); row.className = 'radio-row';
+    step.options.forEach(opt=>{
+      const pill = document.createElement('div');
+      pill.className = 'radio-pill' + (checkinData[step.key] === opt ? ' picked' : '');
+      pill.textContent = opt;
+      pill.onclick = ()=>{ checkinData[step.key] = opt; renderStep(); };
+      row.appendChild(pill);
+    });
+    wrap.appendChild(p); wrap.appendChild(row);
+    body.appendChild(wrap);
+  } else if(step.type === 'text'){
+    const wrap = document.createElement('div');
+    const p = document.createElement('p');
+    p.style.color = 'var(--ink-dim)'; p.style.marginBottom = '10px'; p.style.fontSize='14px';
+    p.textContent = step.prompt;
+    const ta = document.createElement('textarea');
+    ta.value = checkinData[step.key] || '';
+    ta.oninput = (e)=>{ checkinData[step.key] = e.target.value; };
+    wrap.appendChild(p); wrap.appendChild(ta);
+    body.appendChild(wrap);
+  } else if(step.type === 'custom'){
+    step.render(body);
+  }
+
+  document.getElementById('btnBack').disabled = (stepIndex === 0);
+  document.getElementById('btnNext').textContent = (stepIndex === steps.length - 1) ?
+    (flowType === 'checkin' ? 'Guardar check-in' : 'Generar historia clínica y guía') : 'Continuar';
+}
+
+function goBack(){
+  if(stepIndex > 0){ stepIndex--; renderStep(); }
+}
+function goNext(){
+  const steps = currentSteps();
+  if(stepIndex < steps.length - 1){
+    stepIndex++; renderStep();
+  } else {
+    if(flowType === 'checkin'){ submitCheckin(); }
+    else { submitAnamnesis(); }
+  }
+}
+
+function field(container, labelText, inputEl, hint){
+  const f = document.createElement('div'); f.className = 'field';
+  const l = document.createElement('label'); l.textContent = labelText;
+  f.appendChild(l); f.appendChild(inputEl);
+  if(hint){ const h = document.createElement('div'); h.className='hint'; h.textContent = hint; f.appendChild(h); }
+  container.appendChild(f);
+  return inputEl;
+}
+function bindText(el, obj, key){
+  el.value = obj[key] || '';
+  el.oninput = (e)=>{ obj[key] = e.target.value; };
+  return el;
+}
+
+function renderPersonal(body){
+  const d = anamnesisData;
+  const r1 = document.createElement('div'); r1.className='row2';
+  field(r1, 'Nombres y apellidos', bindText(document.createElement('input'), d, 'nombre'));
+  const doc = document.createElement('input'); doc.type='text';
+  field(r1, 'Documento de identidad', bindText(doc, d, 'documento'));
+  body.appendChild(r1);
+
+  const r2 = document.createElement('div'); r2.className='row3';
+  const fn = document.createElement('input'); fn.type='date';
+  field(r2, 'Fecha de nacimiento', bindText(fn, d, 'fechaNacimiento'));
+  const gen = document.createElement('select');
+  gen.innerHTML = '<option value="">Selecciona</option><option>Femenino</option><option>Masculino</option><option>Otro</option>';
+  field(r2, 'Género', bindText(gen, d, 'genero'));
+  const tel = document.createElement('input'); tel.type='tel';
+  field(r2, 'Teléfono', bindText(tel, d, 'telefono'));
+  body.appendChild(r2);
+
+  const r3 = document.createElement('div'); r3.className='row2';
+  field(r3, 'Ocupación', bindText(document.createElement('input'), d, 'ocupacion'));
+  field(r3, 'EPS / seguro de salud', bindText(document.createElement('input'), d, 'eps'));
+  body.appendChild(r3);
+}
+
+const PATOLOGIAS = ['Presión alta','Diabetes','Asma','Enfisema','Aneurisma','Artritis reumatoide','Hipoglicemia','Bronquitis','Enfermedad renal','Anemia','Neoplasias','Patología cardiaca','Enfermedad vascular','Hipertiroidismo','Hipotiroidismo','Adicción','Hernias','Gastritis','Hepatitis','Depresión','Disautonomía','Anorexia','Bulimia','Osteoporosis'];
+const OSTEOMUSCULAR = ['Esguince','Tendinitis','Bursitis','Desgarre muscular','Fracturas','Luxaciones','Uso de ortesis'];
+
+function renderAntecedentes(body){
+  const d = anamnesisData;
+  const h1 = document.createElement('div'); h1.style.fontSize='13px'; h1.style.color='var(--ink-dim)'; h1.style.marginBottom='10px';
+  h1.textContent = '¿Alguna vez le han diagnosticado alguna de estas condiciones?';
+  body.appendChild(h1);
+  const grid = document.createElement('div'); grid.className='check-grid'; grid.style.marginBottom='18px';
+  PATOLOGIAS.forEach(p=>{
+    const label = document.createElement('label'); label.className='check-item';
+    const cb = document.createElement('input'); cb.type='checkbox'; cb.checked = d.patologias.includes(p);
+    cb.onchange = ()=>{ if(cb.checked){ d.patologias.push(p);} else { d.patologias = d.patologias.filter(x=>x!==p); } };
+    label.appendChild(cb); label.appendChild(document.createTextNode(p));
+    grid.appendChild(label);
+  });
+  body.appendChild(grid);
+
+  field(body, 'Aclaración sobre antecedentes patológicos', bindText(document.createElement('textarea'), d, 'aclaracionPatologica'));
+
+  const h2 = document.createElement('div'); h2.style.fontSize='13px'; h2.style.color='var(--ink-dim)'; h2.style.margin='10px 0';
+  h2.textContent = 'Lesiones osteomusculares previas';
+  body.appendChild(h2);
+  const grid2 = document.createElement('div'); grid2.className='check-grid'; grid2.style.marginBottom='18px';
+  OSTEOMUSCULAR.forEach(p=>{
+    const label = document.createElement('label'); label.className='check-item';
+    const cb = document.createElement('input'); cb.type='checkbox'; cb.checked = d.osteomuscular.includes(p);
+    cb.onchange = ()=>{ if(cb.checked){ d.osteomuscular.push(p);} else { d.osteomuscular = d.osteomuscular.filter(x=>x!==p); } };
+    label.appendChild(cb); label.appendChild(document.createTextNode(p));
+    grid2.appendChild(label);
+  });
+  body.appendChild(grid2);
+
+  const r = document.createElement('div'); r.className='row2';
+  field(r, 'Cirugías previas', bindText(document.createElement('textarea'), d, 'cirugias'));
+  field(r, 'Medicamentos actuales', bindText(document.createElement('textarea'), d, 'medicamentos'));
+  body.appendChild(r);
+  const r2 = document.createElement('div'); r2.className='row2';
+  field(r2, 'Alergias conocidas', bindText(document.createElement('textarea'), d, 'alergias'));
+  field(r2, 'Antecedentes familiares relevantes', bindText(document.createElement('textarea'), d, 'familiares'));
+  body.appendChild(r2);
+}
+
+function renderHabitos(body){
+  const d = anamnesisData;
+  field(body, 'Describe qué comes en un día típico (desayuno, almuerzo, cena, snacks)', bindText(document.createElement('textarea'), d, 'alimentacionTipica'), 'Con esto generamos tu guía de alimentación personalizada.');
+
+  const r = document.createElement('div'); r.className='row2';
+  const gr = document.createElement('select'); gr.innerHTML = '<option value="">Selecciona</option><option>Alto</option><option>Normal</option><option>Bajo</option>';
+  field(r, 'Consumo de grasas', bindText(gr, d, 'consumoGrasas'));
+  const az = document.createElement('select'); az.innerHTML = '<option value="">Selecciona</option><option>Alto</option><option>Normal</option><option>Bajo</option>';
+  field(r, 'Consumo de azúcares', bindText(az, d, 'consumoAzucares'));
+  body.appendChild(r);
+
+  const r2 = document.createElement('div'); r2.className='row3';
+  const cig = document.createElement('select'); cig.innerHTML='<option value="">Selecciona</option><option>Sí</option><option>No</option>';
+  field(r2, '¿Fuma?', bindText(cig, d, 'cigarrillo'));
+  const alc = document.createElement('select'); alc.innerHTML='<option value="">Selecciona</option><option>Sí</option><option>No</option>';
+  field(r2, '¿Consume alcohol?', bindText(alc, d, 'alcohol'));
+  const dro = document.createElement('select'); dro.innerHTML='<option value="">Selecciona</option><option>Sí</option><option>No</option>';
+  field(r2, '¿Consume otras sustancias?', bindText(dro, d, 'drogas'));
+  body.appendChild(r2);
+}
+
+function renderSuenoEjercicio(body){
+  const d = anamnesisData;
+  const s = document.createElement('select');
+  s.innerHTML = '<option value="">Selecciona</option><option>Menos de 4 horas</option><option>Entre 4 y 6 horas</option><option>Más de 6 horas</option>';
+  field(body, '¿Cuánto duermes normalmente?', bindText(s, d, 'horasSueno'));
+
+  const r = document.createElement('div'); r.className='row2';
+  const med = document.createElement('select'); med.innerHTML='<option value="">Selecciona</option><option>Sí</option><option>No</option>';
+  field(r, '¿Consumes medicina para dormir?', bindText(med, d, 'medicinaSueno'));
+  field(r, '¿Cuál?', bindText(document.createElement('input'), d, 'medicinaSuenoCual'));
+  body.appendChild(r);
+
+  const r2 = document.createElement('div'); r2.className='row2';
+  const ej = document.createElement('select'); ej.innerHTML='<option value="">Selecciona</option><option>Sí</option><option>No</option>';
+  field(r2, '¿Haces ejercicio actualmente?', bindText(ej, d, 'haceEjercicio'));
+  field(r2, '¿Desde hace cuánto?', bindText(document.createElement('input'), d, 'desdeCuandoEjercicio'));
+  body.appendChild(r2);
+
+  field(body, '¿Qué tipo de ejercicio o deporte practicas o has practicado?', bindText(document.createElement('textarea'), d, 'tipoEjercicio'));
+}
+
+function renderExamen(body){
+  const d = anamnesisData;
+  const r = document.createElement('div'); r.className='row3';
+  const peso = document.createElement('input'); peso.type='number'; peso.step='0.1';
+  field(r, 'Peso (kg)', bindText(peso, d, 'peso'));
+  const est = document.createElement('input'); est.type='number'; est.step='0.1';
+  field(r, 'Estatura (cm)', bindText(est, d, 'estatura'));
+  const gr = document.createElement('input'); gr.type='number'; gr.step='0.1';
+  field(r, '% grasa corporal (si lo conoces)', bindText(gr, d, 'porcGrasa'));
+  body.appendChild(r);
+
+  const r2 = document.createElement('div'); r2.className='row2';
+  const dolor = document.createElement('select'); dolor.innerHTML='<option value="">Selecciona</option><option>Sí</option><option>No</option>';
+  field(r2, '¿Tienes dolor actualmente?', bindText(dolor, d, 'dolor'));
+  field(r2, '¿Desde cuándo?', bindText(document.createElement('input'), d, 'dolorDesde'));
+  body.appendChild(r2);
+
+  field(body, '¿Alguna zona inestable o que quieras fortalecer?', bindText(document.createElement('textarea'), d, 'inestableFortalecer'));
+  field(body, 'Objetivo principal a conseguir', bindText(document.createElement('textarea'), d, 'objetivo'), 'Ej: bajar grasa, ganar masa muscular, mejorar rendimiento, rehabilitar una lesión.');
+
+  if(d.genero === 'Femenino'){
+    const h = document.createElement('div');
+    h.style.fontSize='13px'; h.style.color='var(--ink-dim)'; h.style.margin='22px 0 10px';
+    h.textContent = 'Ciclo menstrual (opcional, nos ayuda a afinar tu guía)';
+    body.appendChild(h);
+
+    const tc = document.createElement('select');
+    tc.innerHTML = '<option value="">Selecciona</option><option>Sí</option><option>No</option><option>Prefiero no responder</option>';
+    tc.value = d.tieneCiclo || '';
+    tc.onchange = ()=>{ d.tieneCiclo = tc.value; renderStep(); };
+    field(body, '¿Actualmente tienes ciclo menstrual?', tc);
+
+    if(d.tieneCiclo === 'Sí'){
+      const r = document.createElement('div'); r.className='row2';
+      const fecha = document.createElement('input'); fecha.type='date';
+      field(r, 'Fecha de inicio de tu último periodo', bindText(fecha, d, 'fechaUltimoPeriodo'), 'Opcional, para estimar tu fase automáticamente.');
+      const dur = document.createElement('input'); dur.type='number'; dur.value = d.duracionCiclo || '';
+      field(r, 'Duración promedio de tu ciclo (días)', bindText(dur, d, 'duracionCiclo'), 'Si no la conoces, se asume 28 días.');
+      body.appendChild(r);
+
+      const fase = document.createElement('select');
+      fase.innerHTML = '<option value="">Prefiero que lo calculen por la fecha</option><option>Menstrual</option><option>Folicular</option><option>Ovulatoria</option><option>Lútea</option>';
+      field(body, 'Si ya sabes en qué fase estás hoy, selecciónala', bindText(fase, d, 'faseManual'));
+    }
+  }
+}
+
+function renderConsentimiento(body){
+  const d = anamnesisData;
+  const box = document.createElement('div'); box.className='consent-box';
+  box.textContent = 'Autorizo el tratamiento de mis datos personales y de salud conforme a la Ley 1581 de 2012 y el Decreto 1377 de 2013 de Colombia, con el único fin de diseñar y ajustar mi plan de entrenamiento y alimentación. Entiendo que la guía generada es informativa, no reemplaza la valoración de un profesional de la salud, y que puedo solicitar la corrección o eliminación de mis datos en cualquier momento.';
+  body.appendChild(box);
+  const label = document.createElement('label'); label.className='consent-check';
+  const cb = document.createElement('input'); cb.type='checkbox'; cb.checked = !!d.consentimiento;
+  cb.onchange = ()=>{ d.consentimiento = cb.checked; };
+  label.appendChild(cb);
+  const span = document.createElement('span'); span.textContent = 'He leído y acepto el tratamiento de mis datos personales y de salud.';
+  label.appendChild(span);
+  body.appendChild(label);
+}
+
+function calcAge(dateStr){
+  if(!dateStr) return null;
+  const b = new Date(dateStr); const t = new Date();
+  let age = t.getFullYear() - b.getFullYear();
+  const m = t.getMonth() - b.getMonth();
+  if(m < 0 || (m === 0 && t.getDate() < b.getDate())) age--;
+  return age;
+}
+function calcIMC(peso, estaturaCm){
+  const p = parseFloat(peso), e = parseFloat(estaturaCm)/100;
+  if(!p || !e) return null;
+  return (p / (e*e)).toFixed(1);
+}
+
+function calcFaseCiclo(d){
+  if(d.tieneCiclo !== 'Sí') return null;
+  if(d.faseManual){ return { fase: d.faseManual, diaCiclo: null }; }
+  if(!d.fechaUltimoPeriodo) return null;
+  const dur = parseInt(d.duracionCiclo) || 28;
+  const inicio = new Date(d.fechaUltimoPeriodo);
+  const hoy = new Date();
+  let diffDias = Math.floor((hoy - inicio) / (1000*60*60*24)) % dur;
+  if(diffDias < 0) diffDias += dur;
+  const diaCiclo = diffDias + 1;
+  let fase;
+  if(diaCiclo <= 5) fase = 'Menstrual';
+  else if(diaCiclo <= Math.round(dur*0.46)) fase = 'Folicular';
+  else if(diaCiclo <= Math.round(dur*0.5)+1) fase = 'Ovulatoria';
+  else fase = 'Lútea';
+  return { fase, diaCiclo };
+}
+
+const TIPS_CICLO = {
+  'Menstrual': {
+    entrenamiento: 'La energía y la tolerancia al esfuerzo suelen bajar por la pérdida de hierro. Prioriza intensidad moderada, movilidad y técnica; está bien reducir la carga si el cuerpo lo pide, sin dejar de moverte.',
+    nutricion: 'Refuerza el hierro (carnes magras, legumbres, vegetales de hoja verde) junto con vitamina C para mejorar su absorción, cuida la hidratación y el magnesio si hay cólicos.'
+  },
+  'Folicular': {
+    entrenamiento: 'El estrógeno en aumento suele traer más energía y mejor recuperación: buen momento para subir intensidad, trabajar fuerza máxima o probar algo nuevo.',
+    nutricion: 'El cuerpo suele tolerar bien los carbohidratos en esta fase; aprovecha para acompañar los entrenamientos exigentes con buena energía y proteína.'
+  },
+  'Ovulatoria': {
+    entrenamiento: 'Suele ser el pico de energía y fuerza del ciclo, pero también hay más laxitud articular. Es buen momento para exigir más carga, cuidando la técnica en saltos y cambios de dirección para proteger rodillas y tobillos.',
+    nutricion: 'Mantén buena hidratación y variedad de antioxidantes (frutas y vegetales de color) para acompañar el mayor esfuerzo.'
+  },
+  'Lútea': {
+    entrenamiento: 'La progesterona más alta puede traer más fatiga, antojos y menor tolerancia al calor. Mantén el volumen si el cuerpo responde bien, pero prioriza la recuperación y baja la exigencia si aparece cansancio marcado.',
+    nutricion: 'Prioriza proteína y fibra para manejar el apetito, incluye magnesio y vitaminas del complejo B, y modera el sodio si hay retención de líquidos.'
+  }
+};
+
+async function postToSheets(payload){
+  const statusId = payload.__statusId;
+  if(!GOOGLE_SHEETS_URL){
+    document.getElementById('vitalSync').textContent = 'Sin URL';
+    return {ok:false, reason:'no_url'};
+  }
+  try{
+    await fetch(GOOGLE_SHEETS_URL, {
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify(payload)
+    });
+    document.getElementById('vitalSync').textContent = 'OK';
+    return {ok:true};
+  }catch(err){
+    document.getElementById('vitalSync').textContent = 'Error';
+    return {ok:false, reason:String(err)};
+  }
+}
+
+function updateVitalsStrip(){
+  sessionCount++;
+  document.getElementById('vitalCount').textContent = sessionCount;
+  if(checkinData.energia) document.getElementById('vitalEnergy').textContent = checkinData.energia + '/5';
+  if(checkinData.sueno) document.getElementById('vitalSleep').textContent = checkinData.sueno + '/5';
+  if(checkinData.estres) document.getElementById('vitalStress').textContent = checkinData.estres + '/5';
+}
+
+function feedbackForCheckin(c){
+  const nums = [c.energia, c.sueno, c.motivacion, 6 - (c.estres||3), 6 - (c.dolorMuscular||3)].filter(n=>typeof n==='number');
+  const avg = nums.reduce((a,b)=>a+b,0) / (nums.length||1);
+  let msg, tip;
+  if(avg >= 4){
+    msg = 'Tu cuerpo está listo para un entrenamiento exigente.';
+    tip = 'Buen día para buscar una carga alta o un nuevo récord personal en tu sesión.';
+  } else if(avg >= 2.6){
+    msg = 'Estás en un punto medio: puedes entrenar, con criterio.';
+    tip = 'Mantén la intensidad planeada pero está atento(a) a cómo responde tu cuerpo durante la sesión.';
+  } else {
+    msg = 'Tu cuerpo está pidiendo recuperación.';
+    tip = 'Considera bajar la intensidad hoy, priorizar movilidad, sueño e hidratación, y avisarle a tu entrenador.';
+  }
+  if(c.dolorMuscular >= 4 && (c.rendimiento === 'Peor')){
+    tip += ' El dolor muscular alto junto con bajo rendimiento reciente puede ser señal de acumulación de fatiga: vale la pena ajustar el volumen de esta semana.';
+  }
+  return {msg, tip, avg: avg.toFixed(1)};
+}
+
+async function submitCheckin(){
+  const btn = document.getElementById('btnNext');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Guardando…';
+  updateVitalsStrip();
+  const fb = feedbackForCheckin(checkinData);
+  const payload = {
+    tipo:'checkin',
+    fecha: new Date().toISOString(),
+    ...checkinData
+  };
+  const sync = await postToSheets(payload);
+
+  document.getElementById('screen-flow').classList.add('hidden');
+  document.getElementById('screen-result').classList.remove('hidden');
+  document.getElementById('resultTitle').textContent = 'Check-in registrado';
+  const body = document.getElementById('resultBody');
+  body.innerHTML = `
+    <div class="result-section">
+      <h4>Lectura del día</h4>
+      <p>${fb.msg}</p>
+      <p style="color:var(--ink-faint);font-size:13px;">${fb.tip}</p>
+    </div>
+    <div class="status-line ${sync.ok ? 'ok' : 'pending'}">
+      ${sync.ok ? 'Guardado en Google Sheets.' : 'No se pudo confirmar el envío a Google Sheets (revisa la configuración ⚙ o tu conexión). El resumen queda visible abajo para copiar o descargar.'}
+    </div>
+  `;
+  window.__lastDoc = buildCheckinDoc(checkinData, fb);
+}
+
+function buildCheckinDoc(c, fb){
+  return [
+    'CHECK-IN RAPIDO',
+    'Fecha: ' + new Date().toLocaleString(),
+    '',
+    'Energia: ' + (c.energia||'-') + '/5',
+    'Sueno: ' + (c.sueno||'-') + '/5',
+    'Dolor muscular: ' + (c.dolorMuscular||'-') + '/5',
+    'Motivacion: ' + (c.motivacion||'-') + '/5',
+    'Estres: ' + (c.estres||'-') + '/5',
+    'Rendimiento reciente: ' + (c.rendimiento||'-'),
+    'Percepcion de progreso: ' + (c.progreso||'-'),
+    'Comentario: ' + (c.comentario||'-'),
+    '',
+    'Lectura: ' + fb.msg,
+    'Recomendacion: ' + fb.tip
+  ].join('\n');
+}
+
+async function submitAnamnesis(){
+  const d = anamnesisData;
+  if(!d.consentimiento){
+    alert('Debes aceptar el tratamiento de datos para continuar.');
+    return;
+  }
+  const btn = document.getElementById('btnNext');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Generando…';
+
+  const edad = calcAge(d.fechaNacimiento);
+  const imc = calcIMC(d.peso, d.estatura);
+
+  const historiaClinica = buildHistoriaClinica(d, edad, imc);
+
+  let guia = null, guiaError = null;
+  try{
+    guia = generarGuiaLocal(d, edad, imc);
+  }catch(err){
+    guiaError = String(err);
+  }
+
+  const payload = {
+    tipo:'anamnesis',
+    fecha: new Date().toISOString(),
+    ...d,
+    edadCalculada: edad,
+    imcCalculado: imc,
+    guiaGenerada: guia ? JSON.stringify(guia) : ''
+  };
+  const sync = await postToSheets(payload);
+
+  document.getElementById('screen-flow').classList.add('hidden');
+  document.getElementById('screen-result').classList.remove('hidden');
+  document.getElementById('resultTitle').textContent = 'Historia clínica generada';
+
+  const body = document.getElementById('resultBody');
+  body.innerHTML = '';
+
+  const doc = document.createElement('div'); doc.className='result-doc';
+  doc.textContent = historiaClinica;
+  const h4 = document.createElement('h4'); h4.textContent = 'Historia clínica'; h4.style.marginTop='0';
+  body.appendChild(h4);
+  body.appendChild(doc);
+
+  if(guia){
+    body.appendChild(renderGuia(guia));
+  } else {
+    const err = document.createElement('div'); err.className='status-line err';
+    err.textContent = 'No se pudo generar la guía personalizada automáticamente (' + (guiaError||'error desconocido') + '). Puedes reintentar más tarde; la historia clínica ya quedó registrada.';
+    body.appendChild(err);
+  }
+
+  const statusLine = document.createElement('div');
+  statusLine.className = 'status-line ' + (sync.ok ? 'ok' : 'pending');
+  statusLine.textContent = sync.ok ? 'Guardado en Google Sheets.' : 'No se pudo confirmar el envío a Google Sheets (revisa la configuración ⚙). El documento queda disponible para descargar o imprimir.';
+  body.appendChild(statusLine);
+
+  window.__lastDoc = historiaClinica + (guia ? ('\n\n' + guiaToText(guia)) : '');
+}
+
+function buildHistoriaClinica(d, edad, imc){
+  const lines = [];
+  lines.push('HISTORIA CLINICA DE ENTRENAMIENTO Y NUTRICION');
+  lines.push('Fecha de evaluacion: ' + new Date().toLocaleDateString());
+  lines.push('');
+  lines.push('DATOS PERSONALES');
+  lines.push('Nombre: ' + (d.nombre||'-'));
+  lines.push('Documento: ' + (d.documento||'-'));
+  lines.push('Edad: ' + (edad!==null ? edad + ' anos' : '-') + '   Genero: ' + (d.genero||'-'));
+  lines.push('Telefono: ' + (d.telefono||'-') + '   EPS: ' + (d.eps||'-'));
+  lines.push('Ocupacion: ' + (d.ocupacion||'-'));
+  lines.push('');
+  lines.push('ANTECEDENTES PATOLOGICOS');
+  lines.push(d.patologias && d.patologias.length ? d.patologias.join(', ') : 'Ninguno reportado');
+  if(d.aclaracionPatologica) lines.push('Aclaracion: ' + d.aclaracionPatologica);
+  lines.push('');
+  lines.push('ANTECEDENTES OSTEOMUSCULARES');
+  lines.push(d.osteomuscular && d.osteomuscular.length ? d.osteomuscular.join(', ') : 'Ninguno reportado');
+  lines.push('');
+  lines.push('CIRUGIAS: ' + (d.cirugias||'Ninguna reportada'));
+  lines.push('MEDICAMENTOS ACTUALES: ' + (d.medicamentos||'Ninguno reportado'));
+  lines.push('ALERGIAS: ' + (d.alergias||'Ninguna reportada'));
+  lines.push('ANTECEDENTES FAMILIARES: ' + (d.familiares||'No reportados'));
+  lines.push('');
+  lines.push('HABITOS');
+  lines.push('Alimentacion tipica: ' + (d.alimentacionTipica||'-'));
+  lines.push('Consumo de grasas: ' + (d.consumoGrasas||'-') + '   Consumo de azucares: ' + (d.consumoAzucares||'-'));
+  lines.push('Fuma: ' + (d.cigarrillo||'-') + '   Alcohol: ' + (d.alcohol||'-') + '   Otras sustancias: ' + (d.drogas||'-'));
+  lines.push('Sueno: ' + (d.horasSueno||'-') + '   Medicina para dormir: ' + (d.medicinaSueno||'-'));
+  lines.push('Ejercicio actual: ' + (d.haceEjercicio||'-') + '   Desde: ' + (d.desdeCuandoEjercicio||'-'));
+  lines.push('Tipo de ejercicio: ' + (d.tipoEjercicio||'-'));
+  lines.push('');
+  lines.push('EXAMEN FISICO');
+  lines.push('Peso: ' + (d.peso||'-') + ' kg   Estatura: ' + (d.estatura||'-') + ' cm   IMC: ' + (imc||'-'));
+  lines.push('% grasa corporal: ' + (d.porcGrasa||'-'));
+  lines.push('Dolor actual: ' + (d.dolor||'-') + '   Desde: ' + (d.dolorDesde||'-'));
+  lines.push('Zona inestable / a fortalecer: ' + (d.inestableFortalecer||'-'));
+  lines.push('');
+  lines.push('OBJETIVO PRINCIPAL');
+  lines.push(d.objetivo || '-');
+  return lines.join('\n');
+}
+
+function generarGuiaLocal(d, edad, imc){
+  const pats = (d.patologias || []).map(p => p.toLowerCase());
+  const has = (kw) => pats.some(p => p.includes(kw));
+  const lesiones = d.osteomuscular || [];
+  const dolorActual = d.dolor === 'Sí';
+  const objetivoTxt = (d.objetivo || '').toLowerCase();
+
+  const flags = {
+    diabetes: has('diabetes') || has('hipogluc'),
+    hipertension: has('presión alta'),
+    cardiaca: has('cardiaca') || has('vascular') || has('aneurisma'),
+    renal: has('renal'),
+    tiroides: has('hipertiroidismo') || has('hipotiroidismo'),
+    gastritis: has('gastritis'),
+    hepatica: has('hepatitis'),
+    anemia: has('anemia'),
+    osteoporosis: has('osteoporosis'),
+    trastornoAlimentario: has('anorexia') || has('bulimia')
+  };
+
+  const objetivo = {
+    bajarGrasa: /grasa|bajar|perder peso|adelgaz/.test(objetivoTxt),
+    ganarMasa: /masa|muscul|hipertrofia|volumen/.test(objetivoTxt),
+    rendimiento: /rendimiento|fuerza|resistencia|deporte|competencia/.test(objetivoTxt),
+    rehab: /rehabilit|lesi[oó]n|recuper/.test(objetivoTxt) || dolorActual
+  };
+
+  const precauciones = [];
+  if (flags.trastornoAlimentario) {
+    precauciones.push('Se reportaron antecedentes relacionados con la alimentación. Este caso debe ser acompañado por un equipo profesional (médico, psicólogo y nutricionista) antes de fijar cualquier plan de entrenamiento o alimentación. No se generan recomendaciones numéricas de dieta o ejercicio para este caso.');
+  }
+  if (flags.cardiaca || flags.hipertension) precauciones.push('Antecedente cardiovascular reportado: requiere aval médico antes de entrenamiento de alta intensidad y monitoreo de esfuerzo.');
+  if (flags.diabetes) precauciones.push('Antecedente relacionado con glicemia: coordinar horarios de comida y entrenamiento con su médico o nutricionista tratante.');
+  if (flags.renal) precauciones.push('Antecedente renal reportado: la ingesta de proteína y suplementos debe ser definida por un profesional de la salud.');
+  if (flags.tiroides) precauciones.push('Antecedente tiroideo reportado: el manejo de energía y peso corporal debe hacer seguimiento con su médico.');
+  if (flags.hepatica) precauciones.push('Antecedente hepático reportado: evitar automedicación y suplementos sin supervisión médica.');
+  if (flags.osteoporosis) precauciones.push('Antecedente de osteoporosis: evitar cargas de alto impacto sin indicación de un profesional.');
+  if (dolorActual) precauciones.push('Reporta dolor actual: no debe entrenar la zona afectada con carga hasta validación de un profesional de la salud.');
+  if (lesiones.length) precauciones.push('Antecedentes osteomusculares (' + lesiones.join(', ') + '): ajustar rango de movimiento y progresión de carga con criterio profesional.');
+  precauciones.push('Esta guía es informativa y debe ajustarse siempre con su entrenador, nutricionista o médico tratante.');
+
+  let resumen = 'Cliente';
+  if (edad) resumen += ' de ' + edad + ' años';
+  if (imc) resumen += ', IMC ' + imc;
+  resumen += '. Objetivo principal: ' + (d.objetivo || 'no especificado') + '.';
+  if (pats.length) resumen += ' Antecedentes relevantes: ' + pats.join(', ') + '.';
+  if (lesiones.length) resumen += ' Antecedentes osteomusculares: ' + lesiones.join(', ') + '.';
+
+  let guia_alimentacion = [];
+  let tips_entrenamiento = [];
+
+  if (flags.trastornoAlimentario) {
+    guia_alimentacion = [{ momento: 'Nota', sugerencias: 'No se genera una guía de alimentación específica por los antecedentes reportados. Se recomienda acompañamiento profesional individualizado.' }];
+    tips_entrenamiento = ['No se generan pautas de entrenamiento específicas por los antecedentes reportados. Se recomienda acompañamiento profesional individualizado antes de definir cualquier rutina.'];
+  } else {
+    const suave = flags.gastritis;
+    const bajoAzucar = flags.diabetes;
+    const bajoSodio = flags.hipertension || flags.renal;
+    const altoHierro = flags.anemia;
+
+    const notaBase = [];
+    if (suave) notaBase.push('preparaciones suaves, sin exceso de picante ni café en ayunas');
+    if (bajoAzucar) notaBase.push('sin azúcares añadidos, priorizando carbohidratos de bajo índice glicémico');
+    if (bajoSodio) notaBase.push('bajo en sodio, evitando embutidos y ultraprocesados');
+    if (altoHierro) notaBase.push('incluyendo fuentes de hierro como carnes magras, leguminosas o vegetales de hoja verde');
+    if (d.consumoGrasas === 'Alto') notaBase.push('moderando frituras y grasas saturadas');
+    if (d.consumoAzucares === 'Alto') notaBase.push('reduciendo azúcar y bebidas azucaradas de forma progresiva');
+    const notaExtra = notaBase.length ? ' (' + notaBase.join('; ') + ')' : '';
+
+    guia_alimentacion = [
+      { momento: 'Desayuno', sugerencias: 'Proteína (huevo, yogur griego o similar) + carbohidrato de calidad (avena, fruta, pan integral) + grasa saludable (aguacate, semillas)' + notaExtra + '.' },
+      { momento: 'Media mañana', sugerencias: 'Fruta entera o un puñado de frutos secos si hay varias horas entre comidas.' },
+      { momento: 'Almuerzo', sugerencias: 'Plato con proteína magra, carbohidrato complejo (arroz, papa, yuca en porción moderada) y abundante vegetal' + notaExtra + '.' },
+      { momento: 'Pre o post-entreno', sugerencias: objetivo.ganarMasa ? 'Carbohidrato de rápida disponibilidad + proteína cerca del entrenamiento para apoyar recuperación y ganancia muscular.' : (objetivo.bajarGrasa ? 'Snack ligero con proteína para llegar a entrenar sin pesadez y controlar el apetito después.' : 'Snack con proteína y carbohidrato simple según la hora del entrenamiento.') },
+      { momento: 'Cena', sugerencias: 'Comida liviana con proteína y vegetales, moderando carbohidratos si el entrenamiento fue en la mañana' + notaExtra + '.' }
+    ];
+
+    if (objetivo.bajarGrasa) {
+      tips_entrenamiento.push('Combina fuerza (3-4 sesiones/semana) con trabajo cardiovascular moderado para mantener masa muscular mientras se reduce grasa.');
+      tips_entrenamiento.push('Prioriza la adherencia: un déficit calórico moderado y sostenible rinde mejor que uno agresivo.');
+    }
+    if (objetivo.ganarMasa) {
+      tips_entrenamiento.push('Enfoca el entrenamiento en sobrecarga progresiva con ejercicios multiarticulares y asegura superávit calórico leve.');
+      tips_entrenamiento.push('Prioriza el descanso entre sesiones del mismo grupo muscular (48-72h) para permitir recuperación.');
+    }
+    if (objetivo.rendimiento) {
+      tips_entrenamiento.push('Periodiza la intensidad de la semana: alterna días de carga alta con días de carga baja o técnica.');
+      tips_entrenamiento.push('Cuida el timing de carbohidratos alrededor del entrenamiento para sostener el rendimiento.');
+    }
+    if (objetivo.rehab || dolorActual || lesiones.length) {
+      tips_entrenamiento.push('Trabaja rango de movimiento sin dolor antes de progresar carga, y prioriza ejercicios controlados sobre movimientos explosivos en la zona afectada.');
+    }
+    if (!tips_entrenamiento.length) {
+      tips_entrenamiento.push('Mantén una progresión gradual de carga y volumen, con técnica correcta como prioridad sobre el peso levantado.');
+    }
+    if (d.horasSueno === 'Menos de 4 horas' || d.horasSueno === 'Entre 4 y 6 horas') {
+      tips_entrenamiento.push('El sueño reportado es limitado: prioriza mejorar horas de descanso, ya que impacta directamente la recuperación y el rendimiento.');
+    }
+  }
+
+  let ciclo = null;
+  if (!flags.trastornoAlimentario && d.genero === 'Femenino' && d.tieneCiclo === 'Sí') {
+    const calc = calcFaseCiclo(d);
+    if (calc && calc.fase && TIPS_CICLO[calc.fase]) {
+      const t = TIPS_CICLO[calc.fase];
+      ciclo = { fase: calc.fase, diaCiclo: calc.diaCiclo, entrenamiento: t.entrenamiento, nutricion: t.nutricion };
+      tips_entrenamiento.push('Fase ' + calc.fase.toLowerCase() + ' del ciclo: ' + t.entrenamiento);
+      guia_alimentacion.push({ momento: 'Según tu ciclo (fase ' + calc.fase.toLowerCase() + ')', sugerencias: t.nutricion });
+      precauciones.push('Los ajustes por ciclo menstrual son una guía general: cada cuerpo responde distinto, y ciclos muy irregulares o dolor incapacitante deben ser evaluados por un profesional de la salud.');
+    }
+  }
+
+  return { resumen, precauciones, guia_alimentacion, tips_entrenamiento, ciclo };
+}
+
+function renderGuia(guia){
+  const wrap = document.createElement('div'); wrap.className='result-section';
+  const h1 = document.createElement('h4'); h1.textContent = 'Resumen'; wrap.appendChild(h1);
+  const p1 = document.createElement('p'); p1.textContent = guia.resumen || '-'; wrap.appendChild(p1);
+
+  if(guia.precauciones && guia.precauciones.length){
+    const h2 = document.createElement('h4'); h2.textContent = 'Precauciones'; wrap.appendChild(h2);
+    const ul = document.createElement('ul');
+    guia.precauciones.forEach(t=>{ const li=document.createElement('li'); li.textContent=t; ul.appendChild(li); });
+    wrap.appendChild(ul);
+  }
+
+  if(guia.guia_alimentacion && guia.guia_alimentacion.length){
+    const h3 = document.createElement('h4'); h3.textContent = 'Guía de alimentación personalizada'; wrap.appendChild(h3);
+    const ul = document.createElement('ul');
+    guia.guia_alimentacion.forEach(m=>{
+      const li = document.createElement('li');
+      li.innerHTML = '<strong style="color:var(--ink)">' + (m.momento||'') + ':</strong> ' + (m.sugerencias||'');
+      ul.appendChild(li);
+    });
+    wrap.appendChild(ul);
+  }
+
+  if(guia.tips_entrenamiento && guia.tips_entrenamiento.length){
+    const h4 = document.createElement('h4'); h4.textContent = 'Tips de entrenamiento'; wrap.appendChild(h4);
+    const ul = document.createElement('ul');
+    guia.tips_entrenamiento.forEach(t=>{ const li=document.createElement('li'); li.textContent=t; ul.appendChild(li); });
+    wrap.appendChild(ul);
+  }
+  return wrap;
+}
+
+function guiaToText(guia){
+  const lines = ['GUIA PERSONALIZADA', '', 'Resumen: ' + (guia.resumen||'-'), ''];
+  if(guia.precauciones){ lines.push('Precauciones:'); guia.precauciones.forEach(t=>lines.push('- '+t)); lines.push(''); }
+  if(guia.guia_alimentacion){ lines.push('Guia de alimentacion:'); guia.guia_alimentacion.forEach(m=>lines.push('- '+m.momento+': '+m.sugerencias)); lines.push(''); }
+  if(guia.tips_entrenamiento){ lines.push('Tips de entrenamiento:'); guia.tips_entrenamiento.forEach(t=>lines.push('- '+t)); }
+  return lines.join('\n');
+}
+
+function downloadDoc(){
+  const text = window.__lastDoc || 'Sin contenido.';
+  const blob = new Blob([text], {type:'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'historia_clinica_' + Date.now() + '.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+document.getElementById('clockLine').textContent = new Date().toLocaleDateString('es-CO', {weekday:'long', day:'numeric', month:'long'});
+</script>
+
+</body>
+</html>
